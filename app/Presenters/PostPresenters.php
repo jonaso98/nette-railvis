@@ -7,20 +7,19 @@ namespace App\Presenters;
 use Nette;
 use Nette\Application\UI\Form;
 
-
-final class HomepagePresenter extends Nette\Application\UI\Presenter
+final class PostPresenter extends Nette\Application\UI\Presenter
 {
-    private Nette\Database\Explorer $database;
+	private Nette\Database\Explorer $database;
 
 	public function __construct(Nette\Database\Explorer $database)
 	{
 		$this->database = $database;
 	}
-    
-    public function renderDefault(): void
-    {
-        $this->template->posts = $this->database
-            ->query('select 
+
+	public function renderShow(int $postId): void
+	{
+		$post = $this->database
+		    ->fetch('select 
                         p.id, 
                         p.id_category, 
                         p.content, 
@@ -28,13 +27,11 @@ final class HomepagePresenter extends Nette\Application\UI\Presenter
                         category.name as category_name
                     from posts as p
                     left join category on category.id = p.id_category
-                    ');
-    }
-
-    public function renderShow(int $postId): void
-	{
-		$this->template->post = $this->database
-			->table('posts')
-			->get($postId);
+                    where p.id = ?', $postId);
+                    
+            if (!$post) {
+            $this->error('Post not found');
+        }
+        $this->template->post = $post;
 	}
 }

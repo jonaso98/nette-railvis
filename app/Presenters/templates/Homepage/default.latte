@@ -3,12 +3,13 @@
 
 	{foreach $posts as $post}
 	<div class="post">
-		
+		<h2><a href="{link Post:Show $post->id}">
 
 		<h2>{$post->category_name}</h2>
 
 		<div>{$post->content|truncate:256}</div>
 		<div class="date">{$post->created_at|date:'j. n. Y'}</div>
+		</a></h2>
 	</div>
 	{/foreach}
 {/block}
