@@ -1,11 +1,13 @@
 {block content}
+<div class="jumbotron text-center">
+  <h1>{$post->category_name}</h1>
+  <p>
+  {$post->created_at|date:'F. n. Y'}
+  </p>
+</div>
+<div class="container">
+    <h3 >{$post->content}</h3>
 
-<p><a n:href="Homepage:default">← back to posts list</a></p>
-
-<div class="date">{$post->created_at|date:'j. n. Y'}</div>
-
-<h1 >{$post->category_name}</h1>
-
-<div class="post">{$post->content}</div>
-
+    <div style="float: right;" ><a n:href="Homepage:default" >← back to posts list</a></div>
+</div>
 {/block}

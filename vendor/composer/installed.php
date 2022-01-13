@@ -1,11 +1,11 @@
 <?php return array(
     'root' => array(
-        'pretty_version' => 'v3.1.9',
-        'version' => '3.1.9.0',
+        'pretty_version' => 'dev-main',
+        'version' => 'dev-main',
         'type' => 'project',
         'install_path' => __DIR__ . '/../../',
         'aliases' => array(),
-        'reference' => NULL,
+        'reference' => 'c8d7f3685d5b4e55dcd45d6f2ab3cb18383f0a50',
         'name' => 'nette/web-project',
         'dev' => true,
     ),
@@ -182,12 +182,12 @@
             'dev_requirement' => false,
         ),
         'nette/web-project' => array(
-            'pretty_version' => 'v3.1.9',
-            'version' => '3.1.9.0',
+            'pretty_version' => 'dev-main',
+            'version' => 'dev-main',
             'type' => 'project',
             'install_path' => __DIR__ . '/../../',
             'aliases' => array(),
-            'reference' => NULL,
+            'reference' => 'c8d7f3685d5b4e55dcd45d6f2ab3cb18383f0a50',
             'dev_requirement' => false,
         ),
         'symfony/thanks' => array(
