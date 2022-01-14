@@ -6,6 +6,11 @@ namespace App\Presenters;
 
 use Nette;
 use Nette\Application\UI\Form;
+use Nette\Application\UI\Forms\Controls,
+	Tracy\Debugger,
+	Tracy\Dumper;
+
+Debugger::enable();
 
 
 final class HomepagePresenter extends Nette\Application\UI\Presenter
@@ -38,7 +43,7 @@ final class HomepagePresenter extends Nette\Application\UI\Presenter
 		// We'll make the Paginator instance and set it up
 		$paginator = new Nette\Utils\Paginator;
 		$paginator->setItemCount($postsCount); // total articles count
-		$paginator->setItemsPerPage(1); // items per page
+		$paginator->setItemsPerPage(10); // items per page
 		$paginator->setPage($page); // actual page number
 
         $this->template->post_links = $this->database
@@ -80,5 +85,70 @@ final class HomepagePresenter extends Nette\Application\UI\Presenter
 
 	public function klientSearchFormSucceeded(Nette\Application\UI\Form $form) {
 			$this->redirect('Homepage:default', $form->getValues()->search, 1);
+	}
+    protected function createComponentNewPostForm(): Form
+	{
+		$categories = $this->database
+        ->fetchPairs('SELECT ca.* FROM category AS ca');
+
+        $regions = $this->database
+        ->fetchPairs('SELECT re.* FROM region AS re');
+        
+        $form = new Form;
+        $form->addSelect('category', 'Category', $categories)->setHtmlAttribute('class', 'form-control');
+        $form->addTextArea('content', 'Content')->setRequired(TRUE)
+        ->setHtmlAttribute('class', 'form-control');
+        $form->addSelect('region', 'Region', $regions)->setPrompt('Select One')->setHtmlAttribute('class', 'form-control');
+        $form->addText('tags', 'Tags')->setHtmlAttribute('data-role', 'tagsinput')->setHtmlAttribute('class', 'form-control');
+        $form->addSubmit('submit', 'Send');
+        
+        // setup form rendering
+        $renderer = $form->getRenderer();
+        $renderer->wrappers['controls']['container'] = NULL;
+        $renderer->wrappers['pair']['container'] = 'div class=control-group';
+        $renderer->wrappers['pair']['.error'] = 'error';
+        $renderer->wrappers['control']['container'] = 'div class=controls';
+        $renderer->wrappers['label']['container'] = 'div class=control-label';
+        $renderer->wrappers['control']['description'] = 'span class=help-inline';
+        $renderer->wrappers['control']['errorcontainer'] = 'span class=help-inline';
+
+        // make form and controls compatible with Twitter Bootstrap
+        $form->getElementPrototype()->class('form');
+        $form->onSuccess[] = [$this, 'formSucceeded'];
+		return $form;
+	}
+
+	public function formSucceeded(Form $form, $data): void
+	{
+        
+		// here we will process the data sent by the form
+        $post = $this->database
+		->query('INSERT INTO posts', [
+            [
+                'id_category' => $data->category,
+                'content' => $data->content,
+                'id_region' => $data->region ? $data->region : null,
+            ]
+        ]);
+        $id_post = $this->database->getInsertId();
+
+        $array = explode(",", $data->tags);
+    
+        foreach ($array as $tag) {
+            $tags = $this->database
+		    ->query('INSERT INTO tags', [
+                [ 'title' => $tag] 
+            ]);
+            $id_tag = $this->database->getInsertId();
+
+            $post_tags = $this->database
+		    ->query('INSERT INTO posts_tags', [
+            [   
+                'id_post' => $id_post,
+                'id_tag' => $id_tag]
+            ]);
+        }		
+        $this->flashMessage('You have successfully save a post.');
+		$this->redirect('Homepage:');
 	}
 }
